@@ -6,6 +6,7 @@ import warnings
 from collections import defaultdict
 
 import numpy as np
+import pyvips
 
 from .. import random_utils
 from .bbox_utils import BboxParams, BboxProcessor
@@ -143,14 +144,18 @@ class Compose(BaseCompose):
     ):
         super(Compose, self).__init__(transforms, p)
 
-        self.processors: typing.Dict[str, typing.Union[BboxProcessor, KeypointsProcessor]] = {}
+        self.processors: typing.Dict[
+            str, typing.Union[BboxProcessor, KeypointsProcessor]
+        ] = {}
         if bbox_params:
             if isinstance(bbox_params, dict):
                 b_params = BboxParams(**bbox_params)
             elif isinstance(bbox_params, BboxParams):
                 b_params = bbox_params
             else:
-                raise ValueError("unknown format of bbox_params, please use `dict` or `BboxParams`")
+                raise ValueError(
+                    "unknown format of bbox_params, please use `dict` or `BboxParams`"
+                )
             self.processors["bboxes"] = BboxProcessor(b_params, additional_targets)
 
         if keypoint_params:
@@ -159,8 +164,12 @@ class Compose(BaseCompose):
             elif isinstance(keypoint_params, KeypointParams):
                 k_params = keypoint_params
             else:
-                raise ValueError("unknown format of keypoint_params, please use `dict` or `KeypointParams`")
-            self.processors["keypoints"] = KeypointsProcessor(k_params, additional_targets)
+                raise ValueError(
+                    "unknown format of keypoint_params, please use `dict` or `KeypointParams`"
+                )
+            self.processors["keypoints"] = KeypointsProcessor(
+                k_params, additional_targets
+            )
 
         if additional_targets is None:
             additional_targets = {}
@@ -188,19 +197,28 @@ class Compose(BaseCompose):
     def _disable_check_args(self) -> None:
         self.is_check_args = False
 
-    def __call__(self, *args, force_apply: bool = False, **data) -> typing.Dict[str, typing.Any]:
+    def __call__(
+        self, *args, force_apply: bool = False, **data
+    ) -> typing.Dict[str, typing.Any]:
         if args:
-            raise KeyError("You have to pass data to augmentations as named arguments, for example: aug(image=image)")
+            raise KeyError(
+                "You have to pass data to augmentations as named arguments, for example: aug(image=image)"
+            )
         if self.is_check_args:
             self._check_args(**data)
-        assert isinstance(force_apply, (bool, int)), "force_apply must have bool or int type"
+        assert isinstance(
+            force_apply, (bool, int)
+        ), "force_apply must have bool or int type"
         need_to_run = force_apply or random.random() < self.p
         for p in self.processors.values():
             p.ensure_data_valid(data)
-        transforms = self.transforms if need_to_run else get_always_apply(self.transforms)
+        transforms = (
+            self.transforms if need_to_run else get_always_apply(self.transforms)
+        )
 
         check_each_transform = any(
-            getattr(item.params, "check_each_transform", False) for item in self.processors.values()
+            getattr(item.params, "check_each_transform", False)
+            for item in self.processors.values()
         )
 
         for p in self.processors.values():
@@ -211,14 +229,18 @@ class Compose(BaseCompose):
 
             if check_each_transform:
                 data = self._check_data_post_transform(data)
-        data = Compose._make_targets_contiguous(data)  # ensure output targets are contiguous
+        data = Compose._make_targets_contiguous(
+            data
+        )  # ensure output targets are contiguous
 
         for p in self.processors.values():
             p.postprocess(data)
 
         return data
 
-    def _check_data_post_transform(self, data: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]:
+    def _check_data_post_transform(
+        self, data: typing.Dict[str, typing.Any]
+    ) -> typing.Dict[str, typing.Any]:
         rows, cols = get_shape(data["image"])
 
         for p in self.processors.values():
@@ -235,7 +257,9 @@ class Compose(BaseCompose):
         keypoints_processor = self.processors.get("keypoints")
         dictionary.update(
             {
-                "bbox_params": bbox_processor.params._to_dict() if bbox_processor else None,  # skipcq: PYL-W0212
+                "bbox_params": bbox_processor.params._to_dict()
+                if bbox_processor
+                else None,  # skipcq: PYL-W0212
                 "keypoint_params": keypoints_processor.params._to_dict()  # skipcq: PYL-W0212
                 if keypoints_processor
                 else None,
@@ -251,7 +275,9 @@ class Compose(BaseCompose):
         keypoints_processor = self.processors.get("keypoints")
         dictionary.update(
             {
-                "bbox_params": bbox_processor.params._to_dict() if bbox_processor else None,  # skipcq: PYL-W0212
+                "bbox_params": bbox_processor.params._to_dict()
+                if bbox_processor
+                else None,  # skipcq: PYL-W0212
                 "keypoint_params": keypoints_processor.params._to_dict()  # skipcq: PYL-W0212
                 if keypoints_processor
                 else None,
@@ -271,16 +297,29 @@ class Compose(BaseCompose):
         for data_name, data in kwargs.items():
             internal_data_name = self.additional_targets.get(data_name, data_name)
             if internal_data_name in checked_single:
-                if not isinstance(data, np.ndarray):
+                if isinstance(data, np.ndarray):
+                    shapes.append(data.shape[:2])
+                elif isinstance(data, pyvips.Image):
+                    shapes.append((data.width, data.height))
+                else:
                     raise TypeError("{} must be numpy array type".format(data_name))
-                shapes.append(data.shape[:2])
             if internal_data_name in checked_multi:
                 if data is not None:
                     if not isinstance(data[0], np.ndarray):
-                        raise TypeError("{} must be list of numpy arrays".format(data_name))
-                    shapes.append(data[0].shape[:2])
-            if internal_data_name in check_bbox_param and self.processors.get("bboxes") is None:
-                raise ValueError("bbox_params must be specified for bbox transformations")
+                        shapes.append(data[0].shape[:2])
+                    elif isinstance(data[0], pyvips.Image):
+                        shapes.append((data.width, data.height))
+                    else:
+                        raise TypeError(
+                            "{} must be list of numpy arrays".format(data_name)
+                        )
+            if (
+                internal_data_name in check_bbox_param
+                and self.processors.get("bboxes") is None
+            ):
+                raise ValueError(
+                    "bbox_params must be specified for bbox transformations"
+                )
 
         if self.is_check_shapes and shapes and shapes.count(shapes[0]) != len(shapes):
             raise ValueError(
@@ -290,7 +329,9 @@ class Compose(BaseCompose):
             )
 
     @staticmethod
-    def _make_targets_contiguous(data: typing.Dict[str, typing.Any]) -> typing.Dict[str, typing.Any]:
+    def _make_targets_contiguous(
+        data: typing.Dict[str, typing.Any]
+    ) -> typing.Dict[str, typing.Any]:
         result = {}
         for key, value in data.items():
             if isinstance(value, np.ndarray):
