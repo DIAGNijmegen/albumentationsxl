@@ -52,7 +52,7 @@ class ToTensor(BasicTransform):
         raise RuntimeError(
             "`ToTensor` is obsolete and it was removed from Albumentations. Please use `ToTensorV2` instead - "
             "https://albumentations.ai/docs/api_reference/pytorch/transforms/"
-            "#albumentations.pytorch.transforms.ToTensorV2. "
+            "#albumentationsxl.pytorch.transforms.ToTensorV2. "
             "\n\nIf you need `ToTensor` downgrade Albumentations to version 0.5.2."
         )
 

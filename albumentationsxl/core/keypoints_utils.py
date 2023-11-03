@@ -102,7 +102,7 @@ class KeypointsProcessor(DataProcessor):
         # be aware that angle and size will not be modified.
 
         try:
-            from albumentations.imgaug.transforms import DualIAATransform
+            from albumentationsxl.imgaug.transforms import DualIAATransform
         except ImportError:
             # imgaug is not installed so we skip imgaug checks.
             return

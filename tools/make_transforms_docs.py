@@ -5,7 +5,7 @@ from enum import Enum
 import argparse
 
 sys.path.append("..")
-import albumentations  # noqa: E402
+import albumentationsxl  # noqa: E402
 
 
 IGNORED_CLASSES = {
@@ -50,37 +50,37 @@ def make_separator(width, align_center):
 
 def get_transforms_info():
     transforms_info = {}
-    members = inspect.getmembers(albumentations)
+    members = inspect.getmembers(albumentationsxl)
     for name, cls in members:
-        if inspect.isclass(cls) and issubclass(cls, albumentations.BasicTransform) and name not in IGNORED_CLASSES:
+        if inspect.isclass(cls) and issubclass(cls, albumentationsxl.BasicTransform) and name not in IGNORED_CLASSES:
             if "DeprecationWarning" in inspect.getsource(cls) or "FutureWarning" in inspect.getsource(cls):
                 continue
 
             targets = {Targets.IMAGE}
-            if issubclass(cls, albumentations.DualTransform):
+            if issubclass(cls, albumentationsxl.DualTransform):
                 targets.add(Targets.MASKS)
 
             if (
-                hasattr(cls, "apply_to_bbox") and cls.apply_to_bbox is not albumentations.DualTransform.apply_to_bbox
+                    hasattr(cls, "apply_to_bbox") and cls.apply_to_bbox is not albumentationsxl.DualTransform.apply_to_bbox
             ) or (
-                hasattr(cls, "apply_to_bboxes")
-                and cls.apply_to_bboxes is not albumentations.DualTransform.apply_to_bboxes
+                    hasattr(cls, "apply_to_bboxes")
+                    and cls.apply_to_bboxes is not albumentationsxl.DualTransform.apply_to_bboxes
             ):
                 targets.add(Targets.BBOXES)
 
             if (
-                hasattr(cls, "apply_to_keypoint")
-                and cls.apply_to_keypoint is not albumentations.DualTransform.apply_to_keypoint
+                    hasattr(cls, "apply_to_keypoint")
+                    and cls.apply_to_keypoint is not albumentationsxl.DualTransform.apply_to_keypoint
             ) or (
-                hasattr(cls, "apply_to_keypoints")
-                and cls.apply_to_keypoints is not albumentations.DualTransform.apply_to_keypoints
+                    hasattr(cls, "apply_to_keypoints")
+                    and cls.apply_to_keypoints is not albumentationsxl.DualTransform.apply_to_keypoints
             ):
                 targets.add(Targets.KEYPOINTS)
 
-            if issubclass(cls, albumentations.DualIAATransform):
+            if issubclass(cls, albumentationsxl.DualIAATransform):
                 targets.update({Targets.BBOXES, Targets.KEYPOINTS})
 
-            if issubclass(cls, albumentations.Lambda):
+            if issubclass(cls, albumentationsxl.Lambda):
                 targets.add(Targets.MASKS)
                 targets.add(Targets.BBOXES)
                 targets.add(Targets.KEYPOINTS)
@@ -88,7 +88,7 @@ def get_transforms_info():
             transforms_info[name] = {
                 "targets": targets,
                 "docs_link": make_augmentation_docs_link(cls),
-                "image_only": issubclass(cls, albumentations.ImageOnlyTransform),
+                "image_only": issubclass(cls, albumentationsxl.ImageOnlyTransform),
             }
     return transforms_info
 

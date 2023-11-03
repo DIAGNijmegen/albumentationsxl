@@ -18,7 +18,7 @@ CHOOSE_INSTALL_REQUIRES = [
 
 def get_version():
     current_dir = os.path.abspath(os.path.dirname(__file__))
-    version_file = os.path.join(current_dir, "albumentations", "__init__.py")
+    version_file = os.path.join(current_dir, "albumentationsxl", "__init__.py")
     with io.open(version_file, encoding="utf-8") as f:
         return re.search(r'^__version__ = [\'"]([^\'"]*)[\'"]', f.read(), re.M).group(1)
 
@@ -55,7 +55,7 @@ def get_install_requirements(install_requires, choose_install_requires):
 
 
 setup(
-    name="albumentations",
+    name="albumentationsxl",
     version=get_version(),
     description="Fast image augmentation library and easy to use wrapper around other libraries",
     long_description=get_long_description(),

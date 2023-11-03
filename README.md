@@ -61,8 +61,9 @@ Other installation options are described in the [documentation](https://albument
 The full documentation is available at **[https://albumentations.ai/docs/](https://albumentations.ai/docs/)**.
 
 ## A simple example
+
 ```python
-import albumentations as A
+import albumentationsxl as A
 import cv2
 
 # Declare an augmentation pipeline

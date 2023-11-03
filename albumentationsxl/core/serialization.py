@@ -14,7 +14,7 @@ except ImportError:
     yaml_available = False
 
 
-from albumentations import __version__
+from albumentationsxl import __version__
 
 __all__ = ["to_dict", "from_dict", "save", "load"]
 
@@ -28,7 +28,7 @@ def shorten_class_name(class_fullname: str) -> str:
     if len(splitted) == 1:
         return class_fullname
     top_module, *_, class_name = splitted
-    if top_module == "albumentations":
+    if top_module == "albumentationsxl":
         return class_name
     return class_fullname
 
@@ -238,10 +238,10 @@ def load(
 
 def register_additional_transforms() -> None:
     """
-    Register transforms that are not imported directly into the `albumentations` module.
+    Register transforms that are not imported directly into the `albumentationsxl` module.
     """
     try:
         # This import will result in ImportError if `torch` is not installed
-        import albumentations.pytorch
+        import albumentationsxl.pytorch
     except ImportError:
         pass

@@ -77,7 +77,7 @@ jobs:
     - name: Run mypy
       run: mypy .
     - name: Run isort
-      run: isort --profile black albumentations
+      run: isort --profile black albumentationsxl
 
   check_transforms_docs:
     name: Check that transforms docs are not outdated

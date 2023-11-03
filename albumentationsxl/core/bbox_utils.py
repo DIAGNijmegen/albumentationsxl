@@ -34,13 +34,13 @@ class BboxParams(Params):
     Parameters of bounding boxes
 
     Args:
-        format (str): format of bounding boxes. Should be 'coco', 'pascal_voc', 'albumentations' or 'yolo'.
+        format (str): format of bounding boxes. Should be 'coco', 'pascal_voc', 'albumentationsxl' or 'yolo'.
 
             The `coco` format
                 `[x_min, y_min, width, height]`, e.g. [97, 12, 150, 200].
             The `pascal_voc` format
                 `[x_min, y_min, x_max, y_max]`, e.g. [97, 12, 247, 212].
-            The `albumentations` format
+            The `albumentationsxl` format
                 is like `pascal_voc`, but normalized,
                 in other words: `[x_min, y_min, x_max, y_max]`, e.g. [0.2, 0.3, 0.4, 0.5].
             The `yolo` format
@@ -175,7 +175,7 @@ def normalize_bbox(bbox: TBox, rows: int, cols: int) -> TBox:
 
 def denormalize_bbox(bbox: TBox, rows: int, cols: int) -> TBox:
     """Denormalize coordinates of a bounding box. Multiply x-coordinates by image width and y-coordinates
-    by image height. This is an inverse operation for :func:`~albumentations.augmentations.bbox.normalize_bbox`.
+    by image height. This is an inverse operation for :func:`~albumentationsxl.augmentations.bbox.normalize_bbox`.
 
     Args:
         bbox: Normalized bounding box `(x_min, y_min, x_max, y_max)`.
@@ -294,7 +294,7 @@ def filter_bboxes_by_visibility(
 def convert_bbox_to_albumentations(
     bbox: BoxType, source_format: str, rows: int, cols: int, check_validity: bool = False
 ) -> BoxType:
-    """Convert a bounding box from a format specified in `source_format` to the format used by albumentations:
+    """Convert a bounding box from a format specified in `source_format` to the format used by albumentationsxl:
     normalized coordinates of top-left and bottom-right corners of the bounding box in a form of
     `(x_min, y_min, x_max, y_max)` e.g. `(0.15, 0.27, 0.67, 0.5)`.
 
@@ -356,10 +356,10 @@ def convert_bbox_to_albumentations(
 def convert_bbox_from_albumentations(
     bbox: BoxType, target_format: str, rows: int, cols: int, check_validity: bool = False
 ) -> BoxType:
-    """Convert a bounding box from the format used by albumentations to a format, specified in `target_format`.
+    """Convert a bounding box from the format used by albumentationsxl to a format, specified in `target_format`.
 
     Args:
-        bbox: An albumentations bounding box `(x_min, y_min, x_max, y_max)`.
+        bbox: An albumentationsxl bounding box `(x_min, y_min, x_max, y_max)`.
         target_format: required format of the output bounding box. Should be 'coco', 'pascal_voc' or 'yolo'.
         rows: Image height.
         cols: Image width.
@@ -404,14 +404,14 @@ def convert_bbox_from_albumentations(
 def convert_bboxes_to_albumentations(
     bboxes: Sequence[BoxType], source_format, rows, cols, check_validity=False
 ) -> List[BoxType]:
-    """Convert a list bounding boxes from a format specified in `source_format` to the format used by albumentations"""
+    """Convert a list bounding boxes from a format specified in `source_format` to the format used by albumentationsxl"""
     return [convert_bbox_to_albumentations(bbox, source_format, rows, cols, check_validity) for bbox in bboxes]
 
 
 def convert_bboxes_from_albumentations(
     bboxes: Sequence[BoxType], target_format: str, rows: int, cols: int, check_validity: bool = False
 ) -> List[BoxType]:
-    """Convert a list of bounding boxes from the format used by albumentations to a format, specified
+    """Convert a list of bounding boxes from the format used by albumentationsxl to a format, specified
     in `target_format`.
 
     Args:

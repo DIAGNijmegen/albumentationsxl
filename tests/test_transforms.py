@@ -5,10 +5,10 @@ import cv2
 import numpy as np
 import pytest
 
-import albumentations as A
-import albumentations.augmentations.functional as F
-import albumentations.augmentations.geometric.functional as FGeometric
-from albumentations.augmentations.blur.functional import gaussian_blur
+import albumentationsxl as A
+import albumentationsxl.augmentations.functional as F
+import albumentationsxl.augmentations.geometric.functional as FGeometric
+from albumentationsxl.augmentations.blur.functional import gaussian_blur
 
 from .utils import get_dual_transforms, get_image_only_transforms, get_transforms
 
@@ -117,7 +117,7 @@ def test_elastic_transform_interpolation(monkeypatch, interpolation):
     image = np.random.randint(low=0, high=256, size=(100, 100, 3), dtype=np.uint8)
     mask = np.random.randint(low=0, high=2, size=(100, 100), dtype=np.uint8)
     monkeypatch.setattr(
-        "albumentations.augmentations.geometric.ElasticTransform.get_params", lambda *_: {"random_state": 1111}
+        "albumentationsxl.augmentations.geometric.ElasticTransform.get_params", lambda *_: {"random_state": 1111}
     )
     aug = A.ElasticTransform(alpha=1, sigma=50, alpha_affine=50, interpolation=interpolation, p=1)
     data = aug(image=image, mask=mask)

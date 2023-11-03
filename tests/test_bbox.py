@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from albumentations import Crop, RandomCrop, RandomResizedCrop, RandomSizedCrop, Rotate
-from albumentations.core.bbox_utils import (
+from albumentationsxl import Crop, RandomCrop, RandomResizedCrop, RandomSizedCrop, Rotate
+from albumentationsxl.core.bbox_utils import (
     calculate_bbox_area,
     convert_bbox_from_albumentations,
     convert_bbox_to_albumentations,
@@ -12,8 +12,8 @@ from albumentations.core.bbox_utils import (
     normalize_bbox,
     normalize_bboxes,
 )
-from albumentations.core.composition import BboxParams, Compose, ReplayCompose
-from albumentations.core.transforms_interface import NoOp
+from albumentationsxl.core.composition import BboxParams, Compose, ReplayCompose
+from albumentationsxl.core.transforms_interface import NoOp
 
 
 @pytest.mark.parametrize(

@@ -7,11 +7,11 @@ import cv2
 import numpy as np
 import pytest
 
-import albumentations as A
-import albumentations.augmentations.functional as F
-import albumentations.augmentations.geometric.functional as FGeometric
-from albumentations.core.serialization import SERIALIZABLE_REGISTRY, shorten_class_name
-from albumentations.core.transforms_interface import ImageOnlyTransform
+import albumentationsxl as A
+import albumentationsxl.augmentations.functional as F
+import albumentationsxl.augmentations.geometric.functional as FGeometric
+from albumentationsxl.core.serialization import SERIALIZABLE_REGISTRY, shorten_class_name
+from albumentationsxl.core.transforms_interface import ImageOnlyTransform
 
 from .conftest import skipif_no_torch
 from .utils import (
@@ -887,7 +887,7 @@ def test_serialization_v2_to_dict():
 @pytest.mark.parametrize(
     ["class_fullname", "expected_short_class_name"],
     [
-        ["albumentations.augmentations.transforms.HorizontalFlip", "HorizontalFlip"],
+        ["albumentationsxl.augmentations.transforms.HorizontalFlip", "HorizontalFlip"],
         ["HorizontalFlip", "HorizontalFlip"],
         ["some_module.HorizontalFlip", "some_module.HorizontalFlip"],
     ],

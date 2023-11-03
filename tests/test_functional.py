@@ -5,14 +5,14 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_almost_equal_nulp
 
-import albumentations as A
-import albumentations.augmentations.functional as F
-import albumentations.augmentations.geometric.functional as FGeometric
-from albumentations.augmentations.utils import (
+import albumentationsxl as A
+import albumentationsxl.augmentations.functional as F
+import albumentationsxl.augmentations.geometric.functional as FGeometric
+from albumentationsxl.augmentations.utils import (
     get_opencv_dtype_from_numpy,
     is_multispectral_image,
 )
-from albumentations.core.bbox_utils import filter_bboxes
+from albumentationsxl.core.bbox_utils import filter_bboxes
 from tests.utils import convert_2d_to_target_format
 
 

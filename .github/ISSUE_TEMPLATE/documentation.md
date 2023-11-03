@@ -1,6 +1,6 @@
 ---
 name: "Documentation"
-about: Report an issue related to https://albumentations.readthedocs.io#
+about: Report an issue related to https://albumentationsxl.readthedocs.io#
 
 ---
 

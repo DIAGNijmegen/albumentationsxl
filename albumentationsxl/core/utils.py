@@ -83,7 +83,7 @@ class DataProcessor(ABC):
             data[data_name] = self.check_and_convert(data[data_name], rows, cols, direction="to")
 
     def check_and_convert(self, data: Sequence, rows: int, cols: int, direction: str = "to") -> Sequence:
-        if self.params.format == "albumentations":
+        if self.params.format == "albumentationsxl":
             self.check(data, rows, cols)
             return data
 

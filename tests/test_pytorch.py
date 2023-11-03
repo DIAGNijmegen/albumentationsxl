@@ -5,8 +5,8 @@ import torch
 from PIL import Image
 from torchvision.transforms import ColorJitter
 
-import albumentations as A
-from albumentations.pytorch.transforms import ToTensor, ToTensorV2
+import albumentationsxl as A
+from albumentationsxl.pytorch.transforms import ToTensor, ToTensorV2
 
 
 def test_torch_to_tensor_v2_augmentations(image, mask):
@@ -97,7 +97,7 @@ def test_torch_to_tensor_raises_runtime_error():
     message = (
         "`ToTensor` is obsolete and it was removed from Albumentations. Please use `ToTensorV2` instead - "
         "https://albumentations.ai/docs/api_reference/pytorch/transforms/"
-        "#albumentations.pytorch.transforms.ToTensorV2. "
+        "#albumentationsxl.pytorch.transforms.ToTensorV2. "
         "\n\nIf you need `ToTensor` downgrade Albumentations to version 0.5.2."
     )
     assert str(exc_info.value) == message

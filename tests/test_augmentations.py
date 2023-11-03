@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import pytest
 
-import albumentations as A
+import albumentationsxl as A
 
 from .utils import get_dual_transforms, get_image_only_transforms, get_transforms
 

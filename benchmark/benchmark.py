@@ -25,10 +25,10 @@ import solt.transforms as slt
 import solt.core as slc
 import solt.utils as slu
 
-import albumentations.augmentations.functional as albumentations
-import albumentations as A
-from albumentations.augmentations.geometric.functional import rotate, resize, shift_scale_rotate
-from albumentations.augmentations.crops.functional import random_crop
+import albumentationsxl.augmentations.functional as albumentations
+import albumentationsxl as A
+from albumentationsxl.augmentations.geometric.functional import rotate, resize, shift_scale_rotate
+from albumentationsxl.augmentations.crops.functional import random_crop
 
 cv2.setNumThreads(0)  # noqa E402
 cv2.ocl.setUseOpenCL(False)  # noqa E402
@@ -40,7 +40,7 @@ os.environ["VECLIB_MAXIMUM_THREADS"] = "1"  # noqa E402
 os.environ["NUMEXPR_NUM_THREADS"] = "1"  # noqa E402
 
 
-DEFAULT_BENCHMARKING_LIBRARIES = ["albumentations", "imgaug", "torchvision", "keras", "augmentor", "solt"]
+DEFAULT_BENCHMARKING_LIBRARIES = ["albumentationsxl", "imgaug", "torchvision", "keras", "augmentor", "solt"]
 
 
 def parse_args():
@@ -67,7 +67,7 @@ def parse_args():
 
 def get_package_versions():
     packages = [
-        "albumentations",
+        "albumentationsxl",
         "imgaug",
         "torchvision",
         "keras",
