@@ -68,7 +68,7 @@ class HueSaturationValue(ImageOnlyTransform):
         }
 
     def get_transform_init_args_names(self):
-        return ("hue_shift_limit", "sat_shift_limit", "val_shift_limit")
+        return "hue_shift_limit", "sat_shift_limit", "val_shift_limit"
 
 
 class RandomBrightnessContrast(ImageOnlyTransform):
@@ -113,7 +113,7 @@ class RandomBrightnessContrast(ImageOnlyTransform):
         }
 
     def get_transform_init_args_names(self):
-        return ("brightness_limit", "contrast_limit", "brightness_by_max")
+        return "brightness_limit", "contrast_limit", "brightness_by_max"
 
 
 class RandomGamma(ImageOnlyTransform):
@@ -142,7 +142,7 @@ class RandomGamma(ImageOnlyTransform):
         return {"gamma": random.uniform(self.gamma_limit[0], self.gamma_limit[1]) / 100.0}
 
     def get_transform_init_args_names(self):
-        return ("gamma_limit", "eps")
+        return "gamma_limit", "eps"
 
 
 class GaussNoise(ImageOnlyTransform):
@@ -214,7 +214,7 @@ class GaussNoise(ImageOnlyTransform):
         return ["image"]
 
     def get_transform_init_args_names(self):
-        return ("var_limit", "per_channel", "mean")
+        return "var_limit", "per_channel", "mean"
 
 
 class HEDShift(ImageOnlyTransform):

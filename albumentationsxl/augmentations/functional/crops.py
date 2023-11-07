@@ -1,9 +1,9 @@
 import pyvips
 from ...core.transforms_interface import BoxInternalType, KeypointInternalType
-
 from ...core.bbox_utils import denormalize_bbox, normalize_bbox
 
 __all__ = [
+    "bbox_crop",
     "get_random_crop_coords",
     "random_crop",
     "pad_or_crop",
@@ -13,6 +13,28 @@ __all__ = [
     "crop_keypoint_by_coords",
     "keypoint_random_crop",
 ]
+
+
+def bbox_crop(bbox: BoxInternalType, x_min: int, y_min: int, x_max: int, y_max: int, rows: int, cols: int):
+    """Crop a bounding box.
+
+    Args:
+        bbox (tuple): A bounding box `(x_min, y_min, x_max, y_max)`.
+        x_min (int):
+        y_min (int):
+        x_max (int):
+        y_max (int):
+        rows (int): Image rows.
+        cols (int): Image cols.
+
+    Returns:
+        tuple: A cropped bounding box `(x_min, y_min, x_max, y_max)`.
+
+    """
+    crop_coords = x_min, y_min, x_max, y_max
+    crop_height = y_max - y_min
+    crop_width = x_max - x_min
+    return crop_bbox_by_coords(bbox, crop_coords, crop_height, crop_width, rows, cols)
 
 
 def get_random_crop_coords(height: int, width: int, crop_height: int, crop_width: int, h_start: float, w_start: float):
@@ -46,7 +68,7 @@ def pad_or_crop(
     return img.gravity(direction, crop_width, crop_height, background=background)
 
 
-def crop(img: pyvips.Image, x_min: int, y_min: int, x_max: int, y_max: int):
+def crop(img: pyvips.Image, x_min: int, y_min: int, x_max: int, y_max: int) -> pyvips.Image:
     height, width = img.height, img.width
     if x_max <= x_min or y_max <= y_min:
         raise ValueError(

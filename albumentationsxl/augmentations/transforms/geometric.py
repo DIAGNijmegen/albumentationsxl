@@ -17,7 +17,7 @@ from ..functional.misc import bbox_from_mask
 from ...core.bbox_utils import denormalize_bbox, normalize_bbox
 from ...core.transforms_interface import BoxInternalType, DualTransform, KeypointInternalType, ImageColorType
 
-__all__ = ["VerticalFlip", "HorizontalFlip", "Flip", "Transpose", "ElasticTransform", "RandomRotate90", "PadIfNeeded"]
+__all__ = ["VerticalFlip", "HorizontalFlip", "Flip", "Transpose", "ElasticTransform", "PadIfNeeded"]
 
 
 class VerticalFlip(DualTransform):
@@ -71,39 +71,6 @@ class HorizontalFlip(DualTransform):
     def get_transform_init_args_names(self):
         return ()
 
-
-class RandomRotate90(DualTransform):
-    """Randomly rotate the input by 90 degrees zero or more times.
-
-    Args:
-        p (float): probability of applying the transform. Default: 0.5.
-
-    Targets:
-        image, mask, bboxes, keypoints
-
-    Image types:
-        uint8, float32
-    """
-
-    def apply(self, img, factor=0, **params):
-        """
-        Args:
-            factor (int): number of times the input will be rotated by 90 degrees.
-        """
-        return F.rot90(img, factor)
-
-    def get_params(self):
-        # Random int in the range [0, 3]
-        return {"factor": random.randint(0, 3)}
-
-    def apply_to_bbox(self, bbox, factor=0, **params):
-        return F.bbox_rot90(bbox, factor, **params)
-
-    def apply_to_keypoint(self, keypoint, factor=0, **params):
-        return F.keypoint_rot90(keypoint, factor, **params)
-
-    def get_transform_init_args_names(self):
-        return ()
 
 
 class Flip(DualTransform):

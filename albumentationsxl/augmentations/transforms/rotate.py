@@ -2,8 +2,8 @@ import math
 import pyvips
 import random
 
-import crops as FCrops
-import geometric as FG
+from ..functional import crops as FCrops
+from ..functional import geometric as FG
 from ...core.transforms_interface import DualTransform, to_tuple
 
 __all__ = ["RandomRotate90", "Rotate"]

@@ -4,6 +4,7 @@ from typing_extensions import Concatenate, ParamSpec
 
 from functools import wraps
 
+from albumentationsxl.core.keypoints_utils import angle_to_2pi_range
 from albumentationsxl.core.transforms_interface import KeypointInternalType
 
 
