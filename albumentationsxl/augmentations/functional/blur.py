@@ -1,9 +1,10 @@
 import pyvips
 import numpy as np
 
-__all__ = ["blur", "gaussian_blur", "motion_blur"]
+__all__ = ["blur", "gaussian_blur", "median_blur", "motion_blur"]
 
 # TODO: harmonize blurring methods that use pyvips convolutions towards common inputs, perhaps a common function?
+
 
 def blur(img: pyvips.Image, ksize: int) -> pyvips.Image:
     """
@@ -29,6 +30,9 @@ def gaussian_blur(img: pyvips.Image, sigma: float, min_amplitude: float) -> pyvi
     return img.gaussblur(sigma, min_ampl=min_amplitude)
 
 
+def median_blur(img: pyvips.Image, ksize: int) -> pyvips.Image:
+    return img.median(ksize)
+
 
 def motion_blur2(img: pyvips.Image, kernel: pyvips.Image) -> pyvips.Image:
     # For large images, perform integer convolutions as much as possible
@@ -48,6 +52,7 @@ def motion_blur2(img: pyvips.Image, kernel: pyvips.Image) -> pyvips.Image:
     print(img.numpy())
     print(img)
     return img.cast("uchar")
+
 
 def motion_blur(img: pyvips.Image, kernel: pyvips.Image) -> pyvips.Image:
     # For large images, perform integer convolutions as much as possible

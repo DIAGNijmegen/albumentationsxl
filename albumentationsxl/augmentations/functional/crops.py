@@ -12,6 +12,9 @@ __all__ = [
     "bbox_random_crop",
     "crop_keypoint_by_coords",
     "keypoint_random_crop",
+    "get_center_crop_coords",
+    "center_crop",
+    "keypoint_center_crop"
 ]
 
 
@@ -179,4 +182,52 @@ def keypoint_random_crop(
 
     """
     crop_coords = get_random_crop_coords(rows, cols, crop_height, crop_width, h_start, w_start)
+    return crop_keypoint_by_coords(keypoint, crop_coords)
+
+
+def get_center_crop_coords(height: int, width: int, crop_height: int, crop_width: int):
+    y1 = (height - crop_height) // 2
+    y2 = y1 + crop_height
+    x1 = (width - crop_width) // 2
+    x2 = x1 + crop_width
+    return x1, y1, x2, y2
+
+
+def center_crop(img: pyvips.Image, crop_height: int, crop_width: int):
+    height, width = img.height, img.width
+    if height < crop_height or width < crop_width:
+        raise ValueError(
+            "Requested crop size ({crop_height}, {crop_width}) is "
+            "larger than the image size ({height}, {width})".format(
+                crop_height=crop_height, crop_width=crop_width, height=height, width=width
+            )
+        )
+    x1, y1, _, _ = get_center_crop_coords(height, width, crop_height, crop_width)
+
+    # Replace with pyvips crop
+    # left top width height
+    img = img.crop(x1, y1, crop_width, crop_height)
+    return img
+
+
+def bbox_center_crop(bbox: BoxInternalType, crop_height: int, crop_width: int, rows: int, cols: int):
+    crop_coords = get_center_crop_coords(rows, cols, crop_height, crop_width)
+    return crop_bbox_by_coords(bbox, crop_coords, crop_height, crop_width, rows, cols)
+
+
+def keypoint_center_crop(keypoint: KeypointInternalType, crop_height: int, crop_width: int, rows: int, cols: int):
+    """Keypoint center crop.
+
+    Args:
+        keypoint (tuple): A keypoint `(x, y, angle, scale)`.
+        crop_height (int): Crop height.
+        crop_width (int): Crop width.
+        rows (int): Image height.
+        cols (int): Image width.
+
+    Returns:
+        tuple: A keypoint `(x, y, angle, scale)`.
+
+    """
+    crop_coords = get_center_crop_coords(rows, cols, crop_height, crop_width)
     return crop_keypoint_by_coords(keypoint, crop_coords)

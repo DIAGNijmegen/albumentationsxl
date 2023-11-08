@@ -4,7 +4,6 @@ import pyvips
 import matplotlib.pyplot as plt
 from PIL import Image
 from albumentationsxl import (
-    Crop,
     Compose,
     HorizontalFlip,
     VerticalFlip,
@@ -14,8 +13,9 @@ from albumentationsxl import (
     ToTensor,
     ToDtype,
     Normalize,
+    Crop,
     RandomCrop,
-    GaussianBlur,
+    CenterCrop,
     CropOrPad,
     Rotate,
     HueSaturationValue,
@@ -25,6 +25,18 @@ from albumentationsxl import (
     PadIfNeeded,
     Blur,
     MotionBlur,
+    MedianBlur,
+    AdvancedBlur,
+    GaussianBlur,
+    CoarseDropout,
+    GridDropout,
+    ChannelDropout,
+    Sharpen,
+    Emboss,
+    Resize,
+    RandomScale,
+    LongestMaxSize,
+    SmallestMaxSize,
 )
 
 import random
@@ -81,23 +93,22 @@ if __name__ == "__main__":
 
     pyvips_image = pyvips.Image.new_from_array(image)
     pyvips_mask = pyvips.Image.new_from_array(mask)
-    transforms = Compose([MotionBlur(blur_limit=15, p=1.0)], is_check_shapes=True)
+    transforms = Compose([SmallestMaxSize(p=1.0)], is_check_shapes=True)
 
+    print(pyvips_image.width, pyvips_image.height)
     sample = {"image": pyvips_image, "mask": pyvips_mask}
     new_image = transforms(**sample)
+    print(new_image["image"].width, new_image["image"].height)
 
-    print("image format after", new_image["image"])
     plt.imshow(new_image["image"].numpy())
-    # plt.imshow(new_image["mask"].numpy(), alpha=0.4)
     plt.show()
 
     #### Regular image augmentation
 
-    transforms = A.Compose([A.MotionBlur(blur_limit=15, p=1.0)])
+    transforms = A.Compose([A.SmallestMaxSize(p=1.0)])
     sample = {"image": image, "mask": mask}
 
     new_image = transforms(**sample)
 
     plt.imshow(new_image["image"])
-    # plt.imshow(new_image["mask"].numpy(), alpha=0.4)
     plt.show()

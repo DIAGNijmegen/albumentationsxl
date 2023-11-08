@@ -2,7 +2,7 @@ import random
 from ..functional import crops as F
 from ...core.transforms_interface import DualTransform
 
-__all__ = ["RandomCrop", "Crop", "CropOrPad"]
+__all__ = ["RandomCrop", "Crop", "CropOrPad", "CenterCrop"]
 
 
 class RandomCrop(DualTransform):
@@ -38,7 +38,7 @@ class RandomCrop(DualTransform):
         return F.keypoint_random_crop(keypoint, self.height, self.width, **params)
 
     def get_transform_init_args_names(self):
-        return ("height", "width")
+        return "height", "width"
 
 
 class Crop(DualTransform):
@@ -74,7 +74,45 @@ class Crop(DualTransform):
         return F.crop_keypoint_by_coords(keypoint, crop_coords=(self.x_min, self.y_min, self.x_max, self.y_max))
 
     def get_transform_init_args_names(self):
-        return ("x_min", "y_min", "x_max", "y_max")
+        return "x_min", "y_min", "x_max", "y_max"
+
+
+class CenterCrop(DualTransform):
+    """Crop the central part of the input.
+
+    Args:
+        height (int): height of the crop.
+        width (int): width of the crop.
+        p (float): probability of applying the transform. Default: 1.
+
+    Targets:
+        image, mask, bboxes, keypoints
+
+    Image types:
+        uint8, float32
+
+    Note:
+        It is recommended to use uint8 images as input.
+        Otherwise the operation will require internal conversion
+        float32 -> uint8 -> float32 that causes worse performance.
+    """
+
+    def __init__(self, height, width, always_apply=False, p=1.0):
+        super(CenterCrop, self).__init__(always_apply, p)
+        self.height = height
+        self.width = width
+
+    def apply(self, img, **params):
+        return F.center_crop(img, self.height, self.width)
+
+    def apply_to_bbox(self, bbox, **params):
+        return F.bbox_center_crop(bbox, self.height, self.width, **params)
+
+    def apply_to_keypoint(self, keypoint, **params):
+        return F.keypoint_center_crop(keypoint, self.height, self.width, **params)
+
+    def get_transform_init_args_names(self):
+        return "height", "width"
 
 
 class CropOrPad(DualTransform):
@@ -115,4 +153,4 @@ class CropOrPad(DualTransform):
         raise NotImplementedError()
 
     def get_transform_init_args_names(self):
-        return ("height", "width", "direction")
+        return "height", "width", "direction"

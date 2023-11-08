@@ -262,7 +262,7 @@ class DualTransform(BasicTransform):
 
     def apply_to_mask(self, img: pyvips.Image, **params) -> pyvips.Image:
         return self.apply(
-            img, **{k: pyvips.Interpolate.new("nearest") if k == "interpolation" else v for k, v in params.items()}
+            img, **{k: pyvips.enums.Kernel.NEAREST if k == "interpolation" else v for k, v in params.items()}
         )
 
     def apply_to_masks(self, masks: Sequence[pyvips.Image], **params) -> List[pyvips.Image]:
