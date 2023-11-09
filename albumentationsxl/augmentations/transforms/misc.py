@@ -13,7 +13,7 @@ from ...core.transforms_interface import (
     to_tuple,
 )
 
-__all__ = ["Sharpen", "Emboss"]
+__all__ = ["Sharpen", "Emboss", "Lambda"]
 
 
 class Sharpen(ImageOnlyTransform):
@@ -29,9 +29,13 @@ class Sharpen(ImageOnlyTransform):
         image
     """
 
-    def __init__(self, alpha=(0.2, 0.5), lightness=(0.5, 1.0), always_apply=False, p=0.5):
+    def __init__(
+        self, alpha=(0.2, 0.5), lightness=(0.5, 1.0), always_apply=False, p=0.5
+    ):
         super(Sharpen, self).__init__(always_apply, p)
-        self.alpha = self.__check_values(to_tuple(alpha, 0.0), name="alpha", bounds=(0.0, 1.0))
+        self.alpha = self.__check_values(
+            to_tuple(alpha, 0.0), name="alpha", bounds=(0.0, 1.0)
+        )
         self.lightness = self.__check_values(to_tuple(lightness, 0.0), name="lightness")
 
     @staticmethod
@@ -54,10 +58,16 @@ class Sharpen(ImageOnlyTransform):
     def get_params(self):
         alpha = random.uniform(*self.alpha)
         lightness = random.uniform(*self.lightness)
-        sharpening_matrix = self.__generate_sharpening_matrix(alpha_sample=alpha, lightness_sample=lightness)
-        return {"sharpening_matrix": pyvips.Image.new_from_list(sharpening_matrix.tolist())}
+        sharpening_matrix = self.__generate_sharpening_matrix(
+            alpha_sample=alpha, lightness_sample=lightness
+        )
+        return {
+            "sharpening_matrix": pyvips.Image.new_from_list(sharpening_matrix.tolist())
+        }
 
-    def apply(self, img: pyvips.Image, sharpening_matrix: pyvips.Image | None = None, **params):
+    def apply(
+        self, img: pyvips.Image, sharpening_matrix: pyvips.Image | None = None, **params
+    ):
         # Can we do integer convolutions here?
         img = img.cast("float") / 255
         img = img.conv(sharpening_matrix)
@@ -80,9 +90,13 @@ class Emboss(ImageOnlyTransform):
         image
     """
 
-    def __init__(self, alpha=(0.2, 0.5), strength=(0.2, 0.7), always_apply=False, p=0.5):
+    def __init__(
+        self, alpha=(0.2, 0.5), strength=(0.2, 0.7), always_apply=False, p=0.5
+    ):
         super(Emboss, self).__init__(always_apply, p)
-        self.alpha = self.__check_values(to_tuple(alpha, 0.0), name="alpha", bounds=(0.0, 1.0))
+        self.alpha = self.__check_values(
+            to_tuple(alpha, 0.0), name="alpha", bounds=(0.0, 1.0)
+        )
         self.strength = self.__check_values(to_tuple(strength, 0.0), name="strength")
 
     @staticmethod
@@ -108,7 +122,9 @@ class Emboss(ImageOnlyTransform):
     def get_params(self):
         alpha = random.uniform(*self.alpha)
         strength = random.uniform(*self.strength)
-        emboss_matrix = self.__generate_emboss_matrix(alpha_sample=alpha, strength_sample=strength)
+        emboss_matrix = self.__generate_emboss_matrix(
+            alpha_sample=alpha, strength_sample=strength
+        )
         print(emboss_matrix)
         return {"emboss_matrix": pyvips.Image.new_from_list(emboss_matrix.tolist())}
 
@@ -141,19 +157,21 @@ class Lambda(NoOp):
     """
 
     def __init__(
-            self,
-            image=None,
-            mask=None,
-            keypoint=None,
-            bbox=None,
-            name=None,
-            always_apply=False,
-            p=1.0,
+        self,
+        image=None,
+        mask=None,
+        keypoint=None,
+        bbox=None,
+        name=None,
+        always_apply=False,
+        p=1.0,
     ):
         super(Lambda, self).__init__(always_apply, p)
 
         self.name = name
-        self.custom_apply_fns = {target_name: F.noop for target_name in ("image", "mask", "keypoint", "bbox")}
+        self.custom_apply_fns = {
+            target_name: F.noop for target_name in ("image", "mask", "keypoint", "bbox")
+        }
         for target_name, custom_apply_fn in {
             "image": image,
             "mask": mask,
@@ -161,7 +179,10 @@ class Lambda(NoOp):
             "bbox": bbox,
         }.items():
             if custom_apply_fn is not None:
-                if isinstance(custom_apply_fn, LambdaType) and custom_apply_fn.__name__ == "<lambda>":
+                if (
+                    isinstance(custom_apply_fn, LambdaType)
+                    and custom_apply_fn.__name__ == "<lambda>"
+                ):
                     warnings.warn(
                         "Using lambda is incompatible with multiprocessing. "
                         "Consider using regular functions or partial()."
@@ -201,4 +222,6 @@ class Lambda(NoOp):
         state = {"name": self.name}
         state.update(self.custom_apply_fns.items())
         state.update(self.get_base_init_args())
-        return "{name}({args})".format(name=self.__class__.__name__, args=format_args(state))
+        return "{name}({args})".format(
+            name=self.__class__.__name__, args=format_args(state)
+        )

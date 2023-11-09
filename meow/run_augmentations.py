@@ -58,8 +58,16 @@ def visualize_bbox(img, bbox, class_name, color=BOX_COLOR, thickness=2):
 
     cv2.rectangle(img, (x_min, y_min), (x_max, y_max), color=color, thickness=thickness)
 
-    ((text_width, text_height), _) = cv2.getTextSize(class_name, cv2.FONT_HERSHEY_SIMPLEX, 0.35, 1)
-    cv2.rectangle(img, (x_min, y_min - int(1.3 * text_height)), (x_min + text_width, y_min), BOX_COLOR, -1)
+    ((text_width, text_height), _) = cv2.getTextSize(
+        class_name, cv2.FONT_HERSHEY_SIMPLEX, 0.35, 1
+    )
+    cv2.rectangle(
+        img,
+        (x_min, y_min - int(1.3 * text_height)),
+        (x_min + text_width, y_min),
+        BOX_COLOR,
+        -1,
+    )
     cv2.putText(
         img,
         text=class_name,
@@ -86,7 +94,12 @@ def visualize(image, bboxes, category_ids, category_id_to_name):
 if __name__ == "__main__":
     image = np.array(Image.open("../images/coco_cat_dog.jpg"))
     mask = image
-    _, mask = cv2.threshold(cv2.imread("../images/coco_cat_dog.jpg", 0), 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    _, mask = cv2.threshold(
+        cv2.imread("../images/coco_cat_dog.jpg", 0),
+        0,
+        255,
+        cv2.THRESH_BINARY + cv2.THRESH_OTSU,
+    )
 
     plt.imshow(image)
     # plt.imshow(mask, alpha=0.4)
@@ -94,7 +107,10 @@ if __name__ == "__main__":
 
     pyvips_image = pyvips.Image.new_from_array(image)
     pyvips_mask = pyvips.Image.new_from_array(mask)
-    transforms = Compose([Affine(p=1.0, cval=[100, 100, 100]), Rotate(p=1.0, value=[255, 0, 0])], is_check_shapes=True)
+    transforms = Compose(
+        [Affine(p=1.0, cval=[100, 100, 100]), Rotate(p=1.0, value=[255, 0, 0])],
+        is_check_shapes=True,
+    )
 
     sample = {"image": pyvips_image, "mask": pyvips_mask}
     new_image = transforms(**sample)
@@ -106,7 +122,10 @@ if __name__ == "__main__":
     #### Regular image augmentation
 
     transforms = A.Compose(
-        [A.Affine(p=1.0, cval=[255, 255, 255]), A.Rotate(border_mode=cv2.BORDER_CONSTANT, value=[0, 255, 0])]
+        [
+            A.Affine(p=1.0, cval=[255, 255, 255]),
+            A.Rotate(border_mode=cv2.BORDER_CONSTANT, value=[0, 255, 0]),
+        ]
     )
     sample = {"image": image, "mask": mask}
 

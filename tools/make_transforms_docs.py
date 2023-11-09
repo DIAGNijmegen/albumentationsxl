@@ -10,8 +10,6 @@ import albumentationsxl  # noqa: E402
 
 IGNORED_CLASSES = {
     "BasicTransform",
-    "BasicIAATransform",
-    "DualIAATransform",
     "DualTransform",
     "ImageOnlyIAATransform",
     "ImageOnlyTransform",
@@ -22,7 +20,7 @@ def make_augmentation_docs_link(cls):
     module_parts = cls.__module__.split(".")
     module_page = "/".join(module_parts[1:])
     return (
-        "[{cls.__name__}](https://albumentations.ai/docs/api_reference/{module_page}/#{cls.__module__}.{cls.__name__})"
+        "[{cls.__name__}](https://albumentationsxl.ai/docs/api_reference/{module_page}/#{cls.__module__}.{cls.__name__})"
     ).format(module_page=module_page, cls=cls)
 
 
@@ -38,7 +36,9 @@ def parse_args():
     subparsers = parser.add_subparsers(help="Commands", dest="command")
     subparsers.add_parser("make")
     check_parser = subparsers.add_parser("check")
-    check_parser.add_argument("filepath", type=str, help="Path to a file that should be checked")
+    check_parser.add_argument(
+        "filepath", type=str, help="Path to a file that should be checked"
+    )
     return parser.parse_args()
 
 
@@ -52,8 +52,14 @@ def get_transforms_info():
     transforms_info = {}
     members = inspect.getmembers(albumentationsxl)
     for name, cls in members:
-        if inspect.isclass(cls) and issubclass(cls, albumentationsxl.BasicTransform) and name not in IGNORED_CLASSES:
-            if "DeprecationWarning" in inspect.getsource(cls) or "FutureWarning" in inspect.getsource(cls):
+        if (
+            inspect.isclass(cls)
+            and issubclass(cls, albumentationsxl.BasicTransform)
+            and name not in IGNORED_CLASSES
+        ):
+            if "DeprecationWarning" in inspect.getsource(
+                cls
+            ) or "FutureWarning" in inspect.getsource(cls):
                 continue
 
             targets = {Targets.IMAGE}
@@ -61,24 +67,26 @@ def get_transforms_info():
                 targets.add(Targets.MASKS)
 
             if (
-                    hasattr(cls, "apply_to_bbox") and cls.apply_to_bbox is not albumentationsxl.DualTransform.apply_to_bbox
+                hasattr(cls, "apply_to_bbox")
+                and cls.apply_to_bbox
+                is not albumentationsxl.DualTransform.apply_to_bbox
             ) or (
-                    hasattr(cls, "apply_to_bboxes")
-                    and cls.apply_to_bboxes is not albumentationsxl.DualTransform.apply_to_bboxes
+                hasattr(cls, "apply_to_bboxes")
+                and cls.apply_to_bboxes
+                is not albumentationsxl.DualTransform.apply_to_bboxes
             ):
                 targets.add(Targets.BBOXES)
 
             if (
-                    hasattr(cls, "apply_to_keypoint")
-                    and cls.apply_to_keypoint is not albumentationsxl.DualTransform.apply_to_keypoint
+                hasattr(cls, "apply_to_keypoint")
+                and cls.apply_to_keypoint
+                is not albumentationsxl.DualTransform.apply_to_keypoint
             ) or (
-                    hasattr(cls, "apply_to_keypoints")
-                    and cls.apply_to_keypoints is not albumentationsxl.DualTransform.apply_to_keypoints
+                hasattr(cls, "apply_to_keypoints")
+                and cls.apply_to_keypoints
+                is not albumentationsxl.DualTransform.apply_to_keypoints
             ):
                 targets.add(Targets.KEYPOINTS)
-
-            if issubclass(cls, albumentationsxl.DualIAATransform):
-                targets.update({Targets.BBOXES, Targets.KEYPOINTS})
 
             if issubclass(cls, albumentationsxl.Lambda):
                 targets.add(Targets.MASKS)
@@ -106,16 +114,19 @@ def make_transforms_targets_table(transforms_info, header):
     column_widths = [max(len(r) for r in column) for column in zip(*rows)]
     lines = [
         " | ".join(
-            "{title: <{width}}".format(width=width, title=title) for width, title in zip(column_widths, rows[0])
+            "{title: <{width}}".format(width=width, title=title)
+            for width, title in zip(column_widths, rows[0])
         ),
         " | ".join(
-            make_separator(width, align_center=column_index > 0) for column_index, width in enumerate(column_widths)
+            make_separator(width, align_center=column_index > 0)
+            for column_index, width in enumerate(column_widths)
         ),
     ]
     for row in rows[1:]:
         lines.append(
             " | ".join(
-                "{column: <{width}}".format(width=width, column=column) for width, column in zip(column_widths, row)
+                "{column: <{width}}".format(width=width, column=column)
+                for width, column in zip(column_widths, row)
             )
         )
     return "\n".join("| {line} |".format(line=line) for line in lines)
@@ -123,7 +134,8 @@ def make_transforms_targets_table(transforms_info, header):
 
 def make_transforms_targets_links(transforms_info):
     return "\n".join(
-        "- " + info["docs_link"] for transform, info in sorted(transforms_info.items(), key=lambda kv: kv[0])
+        "- " + info["docs_link"]
+        for transform, info in sorted(transforms_info.items(), key=lambda kv: kv[0])
     )
 
 
@@ -169,21 +181,35 @@ def main():
     command = args.command
     if command not in {"make", "check"}:
         raise ValueError(
-            "You should provide a valid command: {{make|check}}. Got {command} instead.".format(command=command)
+            "You should provide a valid command: {{make|check}}. Got {command} instead.".format(
+                command=command
+            )
         )
     transforms_info = get_transforms_info()
-    image_only_transforms = {transform: info for transform, info in transforms_info.items() if info["image_only"]}
-    dual_transforms = {transform: info for transform, info in transforms_info.items() if not info["image_only"]}
+    image_only_transforms = {
+        transform: info
+        for transform, info in transforms_info.items()
+        if info["image_only"]
+    }
+    dual_transforms = {
+        transform: info
+        for transform, info in transforms_info.items()
+        if not info["image_only"]
+    }
     image_only_transforms_links = make_transforms_targets_links(image_only_transforms)
     dual_transforms_table = make_transforms_targets_table(
         dual_transforms, header=["Transform"] + [target.value for target in Targets]
     )
     if command == "make":
-        print("===== COPY THIS TABLE TO README.MD BELOW ### Pixel-level transforms =====")
+        print(
+            "===== COPY THIS TABLE TO README.MD BELOW ### Pixel-level transforms ====="
+        )
         print(image_only_transforms_links)
         print("===== END OF COPY =====")
         print()
-        print("===== COPY THIS TABLE TO README.MD BELOW ### Spatial-level transforms =====")
+        print(
+            "===== COPY THIS TABLE TO README.MD BELOW ### Spatial-level transforms ====="
+        )
         print(dual_transforms_table)
         print("===== END OF COPY =====")
     else:
