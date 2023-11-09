@@ -7,11 +7,14 @@ import cv2
 import math
 import pyvips
 import numpy as np
+import skimage.transform
+
+from collections.abc import Sequence
 
 from albumentationsxl.augmentations.utils import (
     angle_2pi_range,
 )
-
+from ...core.bbox_utils import denormalize_bbox, normalize_bbox
 from ...core.transforms_interface import (
     BoxInternalType,
     ImageColorType,
@@ -39,6 +42,10 @@ __all__ = [
     "rotate",
     "transpose",
     "vflip",
+    "warp_affine",
+    "rotation2DMatrixToEulerAngles",
+    "keypoint_affine",
+    "bbox_affine",
 ]
 
 
@@ -99,7 +106,12 @@ def keypoint_rot90(keypoint: KeypointInternalType, factor: int, rows: int, cols:
     return x, y, angle, scale
 
 
-def rotate(img: pyvips.Image, angle: float, interp: pyvips.Interpolate | str, background: list[float, float, float]):
+def rotate(
+    img: pyvips.Image,
+    angle: float,
+    interp: pyvips.Interpolate | str,
+    background: int | float | Sequence[int] | Sequence[float],
+):
     return img.similarity(angle=angle, interpolate=interp, background=background)
 
 
@@ -249,7 +261,7 @@ def elastic_transform(
     alpha: float = 1.0,
     sigma: float = 50.0,
     interpolation: str | pyvips.Interpolate = pyvips.Interpolate.new("bilinear"),
-    background: list = [255, 255, 255],
+    background: int | float | Sequence[int] | Sequence[float] = 255,
     same_dxdy: bool = False,
 ) -> pyvips.Image:
     """Apply elastic transformation on the image
@@ -261,7 +273,7 @@ def elastic_transform(
 
     Parameters
     ----------
-    image : Pyvips Image object
+    img : Pyvips Image object
         The image on which to apply elastic deformation
     sigma : int
         Elasticity coefficient : standard deviation for Gaussian blur, controls smoothness, higher is smoother
@@ -493,3 +505,97 @@ def keypoint_transpose(keypoint: KeypointInternalType) -> KeypointInternalType:
         angle = 3 * np.pi - angle
 
     return y, x, angle, scale
+
+
+def _is_identity_matrix(matrix: skimage.transform.ProjectiveTransform) -> bool:
+    return np.allclose(matrix.params, np.eye(3, dtype=np.float32))
+
+
+def warp_affine(
+    image: pyvips.Image,
+    matrix: skimage.transform.ProjectiveTransform,
+    interpolation: str,
+    cval: int | float | Sequence[int] | Sequence[float],
+    mode: str,
+    output_shape: Sequence[int],
+) -> pyvips.Image:
+    if _is_identity_matrix(matrix):
+        return image
+
+    dsize = int(np.round(output_shape[1])), int(np.round(output_shape[0]))
+
+    image = image.affine(
+        matrix.params[:2, :2].flatten().tolist(),
+        odx=matrix.params[0, 2],
+        ody=matrix.params[1, 2],
+        oarea=(0, 0, dsize[0], dsize[1]),
+        extend=mode,
+        interpolate=interpolation,
+        background=cval,
+    )
+    return image
+
+
+def rotation2DMatrixToEulerAngles(matrix: np.ndarray, y_up: bool = False) -> float:
+    """
+    Args:
+        matrix (np.ndarray): Rotation matrix
+        y_up (bool): is Y axis looks up or down
+    """
+    if y_up:
+        return np.arctan2(matrix[1, 0], matrix[0, 0])
+    return np.arctan2(-matrix[1, 0], matrix[0, 0])
+
+
+@angle_2pi_range
+def keypoint_affine(
+    keypoint: KeypointInternalType,
+    matrix: skimage.transform.ProjectiveTransform,
+    scale: dict,
+) -> KeypointInternalType:
+    if _is_identity_matrix(matrix):
+        return keypoint
+
+    x, y, a, s = keypoint[:4]
+    x, y = cv2.transform(np.array([[[x, y]]]), matrix.params[:2]).squeeze()
+    a += rotation2DMatrixToEulerAngles(matrix.params[:2])
+    s *= np.max([scale["x"], scale["y"]])
+    return x, y, a, s
+
+
+def bbox_affine(
+    bbox: BoxInternalType,
+    matrix: skimage.transform.ProjectiveTransform,
+    rotate_method: str,
+    rows: int,
+    cols: int,
+    output_shape: Sequence[int],
+) -> BoxInternalType:
+    if _is_identity_matrix(matrix):
+        return bbox
+    x_min, y_min, x_max, y_max = denormalize_bbox(bbox, rows, cols)[:4]
+    if rotate_method == "largest_box":
+        points = np.array(
+            [
+                [x_min, y_min],
+                [x_max, y_min],
+                [x_max, y_max],
+                [x_min, y_max],
+            ]
+        )
+    elif rotate_method == "ellipse":
+        w = (x_max - x_min) / 2
+        h = (y_max - y_min) / 2
+        data = np.arange(0, 360, dtype=np.float32)
+        x = w * np.sin(np.radians(data)) + (w + x_min - 0.5)
+        y = h * np.cos(np.radians(data)) + (h + y_min - 0.5)
+        points = np.hstack([x.reshape(-1, 1), y.reshape(-1, 1)])
+    else:
+        raise ValueError(f"Method {rotate_method} is not a valid rotation method.")
+    points = skimage.transform.matrix_transform(points, matrix.params)
+    x_min = np.min(points[:, 0])
+    x_max = np.max(points[:, 0])
+    y_min = np.min(points[:, 1])
+    y_max = np.max(points[:, 1])
+
+    return normalize_bbox((x_min, y_min, x_max, y_max), output_shape[0], output_shape[1])

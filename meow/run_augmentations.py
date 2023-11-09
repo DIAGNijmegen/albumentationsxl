@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from PIL import Image
 from albumentationsxl import (
     Compose,
+    Affine,
     HorizontalFlip,
     VerticalFlip,
     HEDShift,
@@ -93,22 +94,24 @@ if __name__ == "__main__":
 
     pyvips_image = pyvips.Image.new_from_array(image)
     pyvips_mask = pyvips.Image.new_from_array(mask)
-    transforms = Compose([SmallestMaxSize(p=1.0)], is_check_shapes=True)
+    transforms = Compose([Affine(p=1.0, cval=[100, 100, 100]), Rotate(p=1.0, value=[255, 0, 0])], is_check_shapes=True)
 
-    print(pyvips_image.width, pyvips_image.height)
     sample = {"image": pyvips_image, "mask": pyvips_mask}
     new_image = transforms(**sample)
-    print(new_image["image"].width, new_image["image"].height)
 
     plt.imshow(new_image["image"].numpy())
+    # plt.imshow(new_image["mask"].numpy(), alpha=0.2)
     plt.show()
 
     #### Regular image augmentation
 
-    transforms = A.Compose([A.SmallestMaxSize(p=1.0)])
+    transforms = A.Compose(
+        [A.Affine(p=1.0, cval=[255, 255, 255]), A.Rotate(border_mode=cv2.BORDER_CONSTANT, value=[0, 255, 0])]
+    )
     sample = {"image": image, "mask": mask}
 
     new_image = transforms(**sample)
 
     plt.imshow(new_image["image"])
+    # plt.imshow(new_image["mask"], alpha=0.2)
     plt.show()

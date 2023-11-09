@@ -261,6 +261,8 @@ class DualTransform(BasicTransform):
         ]
 
     def apply_to_mask(self, img: pyvips.Image, **params) -> pyvips.Image:
+        # Following does not work (well) with pyvips: can either be interpolation GObject, or a Kernel
+        # See e.g. similarity() and resize()
         return self.apply(
             img, **{k: pyvips.enums.Kernel.NEAREST if k == "interpolation" else v for k, v in params.items()}
         )

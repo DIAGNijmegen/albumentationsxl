@@ -1,7 +1,7 @@
 import pyvips
 import numpy as np
 
-__all__ = ["blur", "gaussian_blur", "median_blur", "motion_blur"]
+__all__ = ["blur", "gaussian_blur", "median_blur"]
 
 # TODO: harmonize blurring methods that use pyvips convolutions towards common inputs, perhaps a common function?
 
@@ -34,41 +34,4 @@ def median_blur(img: pyvips.Image, ksize: int) -> pyvips.Image:
     return img.median(ksize)
 
 
-def motion_blur2(img: pyvips.Image, kernel: pyvips.Image) -> pyvips.Image:
-    # For large images, perform integer convolutions as much as possible
-    img = img.cast("ushort")
-    kernel = (kernel * 255).cast("uchar")
 
-    # Instead of using math, which converts to float, build a lut in ushort format
-    img = img.conv(kernel, precision="integer")
-
-    # The lut is an 65536 * 3 array
-    lut = pyvips.Image.identity(bands=img.bands, ushort=(img.format == "ushort"))
-    lut = (lut / 256).floor().cast("ushort")
-
-    # Map and bandjoin the image separately, or it will become a histogram interpretation
-    img = img.maplut(lut)
-
-    print(img.numpy())
-    print(img)
-    return img.cast("uchar")
-
-
-def motion_blur(img: pyvips.Image, kernel: pyvips.Image) -> pyvips.Image:
-    # For large images, perform integer convolutions as much as possible
-    img = img.cast("ushort")
-    kernel = (kernel * 255).cast("uchar")
-
-    # Instead of using math, which converts to float, build a lut in ushort format
-    img = img.conv(kernel, precision="integer")
-
-    # The lut is an 65536 * 3 array
-    lut = pyvips.Image.identity(bands=img.bands, ushort=(img.format == "ushort"))
-    lut = (lut / 256).floor().cast("ushort")
-
-    # Map and bandjoin the image separately, or it will become a histogram interpretation
-    img = img.maplut(lut)
-
-    print(img.numpy())
-    print(img)
-    return img.cast("uchar")

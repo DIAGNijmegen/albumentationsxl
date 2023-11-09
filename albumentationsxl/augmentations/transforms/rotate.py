@@ -2,6 +2,7 @@ import math
 import pyvips
 import random
 
+from collections.abc import Sequence
 from ..functional import crops as FCrops
 from ..functional import geometric as FG
 from ...core.transforms_interface import DualTransform, to_tuple
@@ -50,9 +51,9 @@ class Rotate(DualTransform):
     Args:
         limit ((int, int) or int): range from which a random angle is picked. If limit is a single int
             an angle is picked from (-limit, limit). Default: (-90, 90)
-        interpolation (OpenCV flag): flag that is used to specify the interpolation algorithm. Should be one of:
-            cv2.INTER_NEAREST, cv2.INTER_LINEAR, cv2.INTER_CUBIC, cv2.INTER_AREA, cv2.INTER_LANCZOS4.
-            Default: cv2.INTER_LINEAR.
+        interpolation (pyvips.enums.Kernel): flag that is used to specify the interpolation algorithm. Should be one of:
+            pyvips.Interpolate.new("bilinear"), pyvips.Interpolate.new("nearest").
+            Default: pyvips.Interpolate.new("nearest").
         value (int, float, list of ints, list of float): padding value if border_mode is cv2.BORDER_CONSTANT.
         mask_value (int, float,
                     list of ints,
@@ -71,14 +72,14 @@ class Rotate(DualTransform):
 
     def __init__(
         self,
-        limit=90,
-        interpolation=pyvips.Interpolate.new("bilinear"),
-        value=[255, 255, 255],
-        mask_value=[0, 0, 0],
-        rotate_method="largest_box",
-        crop_border=False,
-        always_apply=False,
-        p=0.5,
+        limit: int | Sequence[int] = 90,
+        interpolation: pyvips.Interpolate = pyvips.Interpolate.new("bilinear"),
+        value: int | float | Sequence[int] | Sequence[float] = 255,
+        mask_value: int | float | Sequence[int] | Sequence[float] = 0,
+        rotate_method: str = "largest_box",
+        crop_border: bool = False,
+        always_apply: bool = False,
+        p: float = 0.5,
     ):
         super(Rotate, self).__init__(always_apply, p)
         self.limit = to_tuple(limit)
@@ -102,11 +103,7 @@ class Rotate(DualTransform):
         y_max=None,
         **params,
     ):
-        print("angle value:", angle)
-        print(f"image width and height before transform: {img.width}, {img.height}")
-
         img_out = FG.rotate(img, angle, interpolation, self.value)
-        print(f"image width and height after transform: {img_out.width}, {img_out.height}")
 
         if self.crop_border:
             img_out = FCrops.crop(img_out, x_min, y_min, x_max, y_max)

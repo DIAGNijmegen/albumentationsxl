@@ -94,8 +94,8 @@ class LongestMaxSize(DualTransform):
         self.max_size = max_size
 
     def apply(
-        self, img: np.ndarray, max_size: int = 1024, interpolation: str = pyvips.enums.Kernel.LINEAR, **params
-    ) -> np.ndarray:
+        self, img: pyvips.Image, max_size: int = 1024, interpolation: str = pyvips.enums.Kernel.LINEAR, **params
+    ) -> pyvips.Image:
         return F.longest_max_size(img, max_size=max_size, interpolation=interpolation)
 
     def apply_to_bbox(self, bbox: BoxInternalType, **params) -> BoxInternalType:
@@ -144,8 +144,8 @@ class SmallestMaxSize(DualTransform):
         self.max_size = max_size
 
     def apply(
-        self, img: np.ndarray, max_size: int = 1024, interpolation: str = pyvips.enums.Kernel.LINEAR, **params
-    ) -> np.ndarray:
+        self, img: pyvips.Image, max_size: int = 1024, interpolation: str = pyvips.enums.Kernel.LINEAR, **params
+    ) -> pyvips.Image:
         return F.smallest_max_size(img, max_size=max_size, interpolation=interpolation)
 
     def apply_to_bbox(self, bbox: BoxInternalType, **params) -> BoxInternalType:
