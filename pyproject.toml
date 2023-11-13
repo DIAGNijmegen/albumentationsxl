@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "albumentationsxl"
+version = "0.1.0"
+description = "A pytohn library for large image augmentations"
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pyvips = "^2.2.1"
+numpy = ">=1.23.5"
+scikit-image = ">=0.20.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

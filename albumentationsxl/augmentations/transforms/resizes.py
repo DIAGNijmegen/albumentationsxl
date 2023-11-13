@@ -2,9 +2,6 @@ import pyvips
 import random
 from typing import Dict, Sequence, Tuple, Union
 
-import cv2
-import numpy as np
-
 from ...core.transforms_interface import (
     BoxInternalType,
     DualTransform,
@@ -51,7 +48,11 @@ class RandomScale(DualTransform):
         return {"scale": random.uniform(self.scale_limit[0], self.scale_limit[1])}
 
     def apply(
-        self, img: pyvips.Image, scale: float = 0, interpolation=pyvips.enums.Kernel.LINEAR, **params
+        self,
+        img: pyvips.Image,
+        scale: float = 0,
+        interpolation=pyvips.enums.Kernel.LINEAR,
+        **params
     ) -> pyvips.Image:
         return F.scale(img, scale, interpolation)
 
@@ -63,7 +64,10 @@ class RandomScale(DualTransform):
         return F.keypoint_scale(keypoint, scale, scale)
 
     def get_transform_init_args(self):
-        return {"interpolation": self.interpolation, "scale_limit": to_tuple(self.scale_limit, bias=-1.0)}
+        return {
+            "interpolation": self.interpolation,
+            "scale_limit": to_tuple(self.scale_limit, bias=-1.0),
+        }
 
 
 class LongestMaxSize(DualTransform):
@@ -94,7 +98,11 @@ class LongestMaxSize(DualTransform):
         self.max_size = max_size
 
     def apply(
-        self, img: pyvips.Image, max_size: int = 1024, interpolation: str = pyvips.enums.Kernel.LINEAR, **params
+        self,
+        img: pyvips.Image,
+        max_size: int = 1024,
+        interpolation: str = pyvips.enums.Kernel.LINEAR,
+        **params
     ) -> pyvips.Image:
         return F.longest_max_size(img, max_size=max_size, interpolation=interpolation)
 
@@ -102,7 +110,9 @@ class LongestMaxSize(DualTransform):
         # Bounding box coordinates are scale invariant
         return bbox
 
-    def apply_to_keypoint(self, keypoint: KeypointInternalType, max_size: int = 1024, **params) -> KeypointInternalType:
+    def apply_to_keypoint(
+        self, keypoint: KeypointInternalType, max_size: int = 1024, **params
+    ) -> KeypointInternalType:
         height = params["rows"]
         width = params["cols"]
 
@@ -110,7 +120,11 @@ class LongestMaxSize(DualTransform):
         return F.keypoint_scale(keypoint, scale, scale)
 
     def get_params(self) -> Dict[str, int]:
-        return {"max_size": self.max_size if isinstance(self.max_size, int) else random.choice(self.max_size)}
+        return {
+            "max_size": self.max_size
+            if isinstance(self.max_size, int)
+            else random.choice(self.max_size)
+        }
 
     def get_transform_init_args_names(self) -> Tuple[str, ...]:
         return "max_size", "interpolation"
@@ -144,14 +158,20 @@ class SmallestMaxSize(DualTransform):
         self.max_size = max_size
 
     def apply(
-        self, img: pyvips.Image, max_size: int = 1024, interpolation: str = pyvips.enums.Kernel.LINEAR, **params
+        self,
+        img: pyvips.Image,
+        max_size: int = 1024,
+        interpolation: str = pyvips.enums.Kernel.LINEAR,
+        **params
     ) -> pyvips.Image:
         return F.smallest_max_size(img, max_size=max_size, interpolation=interpolation)
 
     def apply_to_bbox(self, bbox: BoxInternalType, **params) -> BoxInternalType:
         return bbox
 
-    def apply_to_keypoint(self, keypoint: KeypointInternalType, max_size: int = 1024, **params) -> KeypointInternalType:
+    def apply_to_keypoint(
+        self, keypoint: KeypointInternalType, max_size: int = 1024, **params
+    ) -> KeypointInternalType:
         height = params["rows"]
         width = params["cols"]
 
@@ -159,7 +179,11 @@ class SmallestMaxSize(DualTransform):
         return F.keypoint_scale(keypoint, scale, scale)
 
     def get_params(self) -> Dict[str, int]:
-        return {"max_size": self.max_size if isinstance(self.max_size, int) else random.choice(self.max_size)}
+        return {
+            "max_size": self.max_size
+            if isinstance(self.max_size, int)
+            else random.choice(self.max_size)
+        }
 
     def get_transform_init_args_names(self) -> Tuple[str, ...]:
         return "max_size", "interpolation"
@@ -183,14 +207,25 @@ class Resize(DualTransform):
         uint8, float32
     """
 
-    def __init__(self, height, width, interpolation=pyvips.enums.Kernel.LINEAR, always_apply=False, p=1):
+    def __init__(
+        self,
+        height,
+        width,
+        interpolation=pyvips.enums.Kernel.LINEAR,
+        always_apply=False,
+        p=1,
+    ):
         super(Resize, self).__init__(always_apply, p)
         self.height = height
         self.width = width
         self.interpolation = interpolation
 
-    def apply(self, img: pyvips.Image, interpolation=pyvips.enums.Kernel.LINEAR, **params):
-        return F.resize(img, height=self.height, width=self.width, interpolation=interpolation)
+    def apply(
+        self, img: pyvips.Image, interpolation=pyvips.enums.Kernel.LINEAR, **params
+    ):
+        return F.resize(
+            img, height=self.height, width=self.width, interpolation=interpolation
+        )
 
     def apply_to_bbox(self, bbox, **params):
         # Bounding box coordinates are scale invariant

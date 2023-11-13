@@ -8,10 +8,7 @@ The transformations are basically the same as albumentationsxl, replacing numpy 
 import random
 import pyvips
 
-# we need both albumentationsxl functional and our custom one
-
 from ..functional import color as F
-
 from ...core.transforms_interface import ImageOnlyTransform, to_tuple
 
 __all__ = [
@@ -57,14 +54,22 @@ class HueSaturationValue(ImageOnlyTransform):
 
     def apply(self, image, hue_shift=0, sat_shift=0, val_shift=0, **params):
         if not image.bands == 3 and not image.bands == 1:
-            raise TypeError("HueSaturationValue transformation expects 1-channel or 3-channel images.")
+            raise TypeError(
+                "HueSaturationValue transformation expects 1-channel or 3-channel images."
+            )
         return F.shift_hsv(image, hue_shift, sat_shift, val_shift)
 
     def get_params(self):
         return {
-            "hue_shift": random.uniform(self.hue_shift_limit[0], self.hue_shift_limit[1]),
-            "sat_shift": random.uniform(self.sat_shift_limit[0], self.sat_shift_limit[1]),
-            "val_shift": random.uniform(self.val_shift_limit[0], self.val_shift_limit[1]),
+            "hue_shift": random.uniform(
+                self.hue_shift_limit[0], self.hue_shift_limit[1]
+            ),
+            "sat_shift": random.uniform(
+                self.sat_shift_limit[0], self.sat_shift_limit[1]
+            ),
+            "val_shift": random.uniform(
+                self.val_shift_limit[0], self.val_shift_limit[1]
+            ),
         }
 
     def get_transform_init_args_names(self):
@@ -108,8 +113,10 @@ class RandomBrightnessContrast(ImageOnlyTransform):
 
     def get_params(self):
         return {
-            "alpha": 1.0 + random.uniform(self.contrast_limit[0], self.contrast_limit[1]),
-            "beta": 0.0 + random.uniform(self.brightness_limit[0], self.brightness_limit[1]),
+            "alpha": 1.0
+            + random.uniform(self.contrast_limit[0], self.contrast_limit[1]),
+            "beta": 0.0
+            + random.uniform(self.brightness_limit[0], self.brightness_limit[1]),
         }
 
     def get_transform_init_args_names(self):
@@ -139,7 +146,9 @@ class RandomGamma(ImageOnlyTransform):
         return F.gamma_transform(img, gamma=gamma)
 
     def get_params(self):
-        return {"gamma": random.uniform(self.gamma_limit[0], self.gamma_limit[1]) / 100.0}
+        return {
+            "gamma": random.uniform(self.gamma_limit[0], self.gamma_limit[1]) / 100.0
+        }
 
     def get_transform_init_args_names(self):
         return "gamma_limit", "eps"
@@ -185,7 +194,9 @@ class GaussNoise(ImageOnlyTransform):
             self.var_limit = (0, var_limit)
         else:
             raise TypeError(
-                "Expected var_limit type to be one of (int, float, tuple, list), got {}".format(type(var_limit))
+                "Expected var_limit type to be one of (int, float, tuple, list), got {}".format(
+                    type(var_limit)
+                )
             )
 
         self.mean = mean
@@ -200,12 +211,20 @@ class GaussNoise(ImageOnlyTransform):
         sigma = var**0.5
 
         if self.per_channel:
-            gauss_1 = pyvips.Image.gaussnoise(image.width, image.height, sigma=sigma, mean=self.mean)
-            gauss_2 = pyvips.Image.gaussnoise(image.width, image.height, sigma=sigma, mean=self.mean)
-            gauss_3 = pyvips.Image.gaussnoise(image.width, image.height, sigma=sigma, mean=self.mean)
+            gauss_1 = pyvips.Image.gaussnoise(
+                image.width, image.height, sigma=sigma, mean=self.mean
+            )
+            gauss_2 = pyvips.Image.gaussnoise(
+                image.width, image.height, sigma=sigma, mean=self.mean
+            )
+            gauss_3 = pyvips.Image.gaussnoise(
+                image.width, image.height, sigma=sigma, mean=self.mean
+            )
             gauss = gauss_1.bandjoin([gauss_2, gauss_3])
         else:
-            gauss = pyvips.Image.gaussnoise(image.width, image.height, sigma=sigma, mean=self.mean)
+            gauss = pyvips.Image.gaussnoise(
+                image.width, image.height, sigma=sigma, mean=self.mean
+            )
 
         return {"gauss": gauss}
 
