@@ -54,10 +54,10 @@ class Rotate(DualTransform):
         interpolation (pyvips.enums.Kernel): flag that is used to specify the interpolation algorithm. Should be one of:
             pyvips.Interpolate.new("bilinear"), pyvips.Interpolate.new("nearest").
             Default: pyvips.Interpolate.new("nearest").
-        value (int, float, list of ints, list of float): padding value if border_mode is cv2.BORDER_CONSTANT.
+        value (int, float, list of ints, list of float): padding value, border mode is constant
         mask_value (int, float,
                     list of ints,
-                    list of float): padding value if border_mode is cv2.BORDER_CONSTANT applied for masks.
+                    list of float): padding value, border mode is constant, for masks.
         rotate_method (str): rotation method used for the bounding boxes. Should be one of "largest_box" or "ellipse".
             Default: "largest_box"
         crop_border (bool): If True would make a largest possible crop within rotated image
@@ -198,7 +198,6 @@ class Rotate(DualTransform):
         return (
             "limit",
             "interpolation",
-            "border_mode",
             "value",
             "mask_value",
             "rotate_method",
