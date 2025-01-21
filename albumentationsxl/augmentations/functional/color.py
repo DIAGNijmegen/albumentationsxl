@@ -44,11 +44,9 @@ def _shift_hsv_uint8(img, hue_shift, sat_shift, val_shift):
     new_s = img[1].maplut(lut[1].cast("uchar"))
     new_v = img[2].maplut(lut[2].cast("uchar"))
 
-    hsv = new_h.bandjoin([new_s, new_v])
+    img = new_h.bandjoin([new_s, new_v]).copy(interpretation="srgb")  # Make sure interpretation is correct
 
-    img = hsv.colourspace("srgb")
-
-    return img.colourspace("srgb")
+    return img
 
 
 def _shift_hsv_non_uint8(img, hue_shift, sat_shift, val_shift):
@@ -128,7 +126,7 @@ def _brightness_contrast_adjust_uint(img, alpha=1, beta=0, beta_by_max=False):
     new_r = img[0].maplut(lut[0].cast(img.format))
     new_g = img[1].maplut(lut[1].cast(img.format))
     new_b = img[2].maplut(lut[2].cast(img.format))
-    return new_r.bandjoin([new_g, new_b])
+    return new_r.bandjoin([new_g, new_b]).copy(interpretation="srgb")
 
 
 def gauss_noise(image, gauss):
