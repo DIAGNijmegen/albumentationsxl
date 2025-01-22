@@ -44,9 +44,9 @@ def _shift_hsv_uint8(img, hue_shift, sat_shift, val_shift):
     new_s = img[1].maplut(lut[1].cast("uchar"))
     new_v = img[2].maplut(lut[2].cast("uchar"))
 
-    img = new_h.bandjoin([new_s, new_v]).copy(interpretation="srgb")  # Make sure interpretation is correct
+    img = new_h.bandjoin([new_s, new_v]).copy(interpretation="hsv")  # Make sure interpretation is correct
 
-    return img
+    return img.colourspace("srgb")
 
 
 def _shift_hsv_non_uint8(img, hue_shift, sat_shift, val_shift):
