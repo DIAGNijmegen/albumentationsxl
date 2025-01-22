@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "albumentationsxl"
-version = "0.1.1"
+version = "0.1.2"
 description = "A pytohn library for large image augmentations"
 authors = ["Your Name <you@example.com>"]
 license = "MIT"
